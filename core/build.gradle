@@ -1,0 +1,50 @@
+dependencies {
+    // Spring boot
+    implementation("org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}")
+
+    // Utilities
+    implementation("org.slf4j:slf4j-api:${slf4jApiVersion}")
+    implementation("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    implementation("commons-io:commons-io:${commonsIoVersion}")
+
+    // Logging
+    implementation("net.logstash.logback:logstash-logback-encoder:${logStashLogbackVersion}")
+    implementation("ch.qos.logback:logback-core:${logbackVersion}")
+    implementation("ch.qos.logback:logback-classic:${logbackVersion}")
+    implementation("ch.qos.logback:logback-access:${logbackVersion}")
+
+    // Dev tools
+    compileOnly("org.springframework.boot:spring-boot-devtools:${springBootVersion}")
+
+    // Test
+    testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}") {
+        exclude group: "org.junit"
+    }
+    testImplementation("org.assertj:assertj-core:${assertjCoreVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junit5Version}")
+    testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+    testImplementation("org.mockito:mockito-core:${mockitoVersion}")
+
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junit5Version}")
+    testRuntimeOnly("org.junit.platform:junit-platform-runner:${junit5PlatformVersion}")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:${junit5PlatformVersion}")
+}
+
+test {
+    useJUnitPlatform()
+    outputs.upToDateWhen { false }
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+task checkCleanArchitecture(type: Exec) {
+    commandLine 'tools/check-clean-architecture.sh'
+}
+
+task testsPyramidCalculator(type: Exec) {
+    commandLine "sh", "tools/tests-pyramid-calculator.sh"
+}
+
+check.dependsOn checkCleanArchitecture
+check.dependsOn testsPyramidCalculator

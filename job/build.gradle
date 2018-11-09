@@ -1,0 +1,51 @@
+apply plugin: "com.github.johnrengelman.shadow"
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.example.demo.job.Main'
+    }
+}
+dependencies {
+    compile project(":core")
+
+    compileOnly("org.apache.flink:flink-java:${flinkVersion}")
+    compileOnly("org.apache.flink:flink-streaming-java_2.11:${flinkVersion}")
+    compileOnly("org.apache.flink:flink-streaming-scala_2.11:${flinkVersion}")
+
+
+    implementation("org.springframework:spring-context:${springVersion}")
+
+
+    testImplementation("org.springframework:spring-test:${springVersion}")
+    testImplementation("org.assertj:assertj-core:${assertjCoreVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junit5Version}")
+    testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+    testImplementation("org.mockito:mockito-core:${mockitoVersion}")
+
+    testImplementation("org.apache.flink:flink-java:${flinkVersion}")
+    testImplementation("org.apache.flink:flink-streaming-java_2.11:${flinkVersion}")
+    testImplementation("org.apache.flink:flink-test-utils_2.11:${flinkVersion}")
+
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junit5Version}")
+}
+
+test {
+    useJUnitPlatform()
+    outputs.upToDateWhen { false }
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+task checkCleanArchitecture(type: Exec) {
+    commandLine 'tools/check-clean-architecture.sh'
+}
+
+task testsPyramidCalculator(type: Exec) {
+    commandLine "sh", "tools/tests-pyramid-calculator.sh"
+}
+
+check.dependsOn checkCleanArchitecture
+check.dependsOn testsPyramidCalculator
+
+jar.dependsOn(shadowJar)

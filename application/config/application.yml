@@ -1,0 +1,16 @@
+flink:
+  defaultParallelism: 4
+  managerHost: localhost
+  managerRpcPort: 6123
+  jobJarRootPath: "build"
+  jobJarName: "job.jar"
+
+server:
+  port: ${PORT:8080}
+spring:
+  application:
+    name: flink-clean-archi
+
+jobs:
+  wordCount:
+    filesRootPath: "build/test-files/"

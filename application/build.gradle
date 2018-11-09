@@ -1,0 +1,120 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+
+apply plugin: 'org.springframework.boot'
+
+sourceSets {
+    functionalTest {
+        java {
+            compileClasspath += main.output
+            runtimeClasspath += main.output
+            srcDir file('src/functional/java')
+        }
+        resources.srcDir file('src/functional/resources')
+    }
+}
+
+configurations {
+    functionalTestImplementation.extendsFrom testImplementation
+    functionalTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+dependencies {
+    compile project(":core")
+
+    // Spring boot
+    implementation("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+    implementation("org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
+        exclude module: "spring-boot-starter-tomcat"
+    }
+    implementation("org.springframework.boot:spring-boot-starter-jetty:${springBootVersion}")
+
+
+    implementation("io.springfox:springfox-swagger2:${springfoxSwaggerVersion}")
+    implementation("io.springfox:springfox-swagger-ui:${springfoxSwaggerVersion}")
+
+    // Prometheus metrics endpoint
+    implementation("io.prometheus:simpleclient:${prometheusVersion}")
+    implementation("io.micrometer:micrometer-registry-prometheus:${micrometerVersion}")
+
+    implementation("org.apache.flink:flink-clients_2.11:${flinkVersion}")
+    implementation("org.apache.flink:flink-streaming-java_2.11:${flinkVersion}")
+
+    // Dev tools
+    compileOnly("org.springframework.boot:spring-boot-devtools:${springBootVersion}")
+
+    // Test
+    testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}") {
+        exclude group: "org.junit"
+    }
+    testImplementation("org.assertj:assertj-core:${assertjCoreVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junit5Version}")
+    testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+    testImplementation("org.mockito:mockito-core:${mockitoVersion}")
+
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junit5Version}")
+    testRuntimeOnly("org.junit.platform:junit-platform-runner:${junit5PlatformVersion}")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:${junit5PlatformVersion}")
+
+    functionalTestImplementation("io.cucumber:cucumber-java8:${cucumberVersion}")
+    functionalTestImplementation("io.cucumber:cucumber-junit:${cucumberVersion}")
+    functionalTestImplementation("io.cucumber:cucumber-spring:${cucumberVersion}")
+    functionalTestRuntimeOnly("org.junit.vintage:junit-vintage-engine:${junit5Version}")
+}
+
+test {
+    useJUnitPlatform()
+    outputs.upToDateWhen { false }
+    testLogging {
+        events = ["failed", "passed", "skipped", "standard_out", "standard_error"]
+    }
+    reports.html.setDestination(file("build/reports/junit/tests"))
+}
+
+task functionalTest(type: Test) {
+
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.functionalTest.output.classesDirs
+    classpath = sourceSets.functionalTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+    testLogging {
+        events = ["failed", "passed", "skipped", "standard_out", "standard_error"]
+    }
+    mustRunAfter test
+    reports.html.setDestination(file("build/reports/junit/functionalTests"))
+}
+
+check.dependsOn functionalTest
+
+task copyJobFatJar(){
+    dependsOn(":job:shadowJar")
+    doFirst {
+        logger.lifecycle("searching job fat jar")
+        def jobFatJar = Files.list(Paths.get("${rootDir}/job/build/libs"))
+            .filter { p -> p.getFileName().toString().endsWith("-all.jar") }
+            .findFirst()
+            .get()
+        def fatJarDest = Paths.get("${projectDir}/build/job.jar")
+        if (!Files.exists(fatJarDest.getParent())) {
+            Files.createDirectories(fatJarDest.getParent())
+        }
+        logger.lifecycle("copying job fat jar")
+        Files.copy(jobFatJar, fatJarDest, StandardCopyOption.REPLACE_EXISTING)
+    }
+}
+
+compileFunctionalTestJava.dependsOn(copyJobFatJar)
+
+task checkCleanArchitecture(type: Exec) {
+    commandLine 'tools/check-clean-architecture.sh'
+}
+
+task testsPyramidCalculator(type: Exec) {
+    commandLine "sh", "tools/tests-pyramid-calculator.sh"
+}
+
+check.dependsOn checkCleanArchitecture
+check.dependsOn testsPyramidCalculator

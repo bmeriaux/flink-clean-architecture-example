@@ -1,0 +1,4 @@
+rootProject.name = 'clean-archi-flink'
+include 'core'
+include 'application'
+include 'job'
