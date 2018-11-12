@@ -57,10 +57,12 @@ class FlinkJobSubmitterTest {
     void submitJob_shouldPackageJarWithCliArgsAndRunTheJob() throws Exception {
         // Given
         Map<String, String> jobArgs = new LinkedHashMap<>();
-        jobArgs.put("inputFilePath", "input/loremIpsum.txt");
+        jobArgs.put("inputFilePath", "files/loremIpsum.txt");
+        jobArgs.put("outputFilePath", "files/wordcount.txt");
 
         String[] cliArgs = new String[]{
-            "--job.args.inputFilePath=input/loremIpsum.txt",
+            "--job.args.inputFilePath=files/loremIpsum.txt",
+            "--job.args.outputFilePath=files/wordcount.txt",
             "--job.args.jobName=WordCount",
         };
         Long jobDuration = 100L;

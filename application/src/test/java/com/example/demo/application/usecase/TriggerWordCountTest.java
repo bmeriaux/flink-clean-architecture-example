@@ -22,13 +22,14 @@ class TriggerWordCountTest {
     @Test
     void trigger_shouldSubmitJobWithArgs() throws Exception {
         // Given
-        triggerWordCount = new TriggerWordCount(jobSubmitter, "input");
+        triggerWordCount = new TriggerWordCount(jobSubmitter, "files");
         // When
         triggerWordCount.trigger();
 
         // Then
         Map<String, String> jobArgs = new HashMap<>();
-        jobArgs.put("inputFilePath", "input/loremIpsum.txt");
+        jobArgs.put("inputFilePath", "files/loremIpsum.txt");
+        jobArgs.put("outputFilePath", "files/wordcount.txt");
         then(jobSubmitter).should().submitJob("wordCount", jobArgs);
     }
 }

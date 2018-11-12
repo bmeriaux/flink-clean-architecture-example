@@ -11,7 +11,8 @@ import java.util.Map;
 @Component
 public class TriggerWordCount {
 
-    public static final String FILE_NAME = "loremIpsum.txt";
+    public static final String INTPUT_FILE_NAME = "loremIpsum.txt";
+    public static final String OUTPUT_FILE_NAME = "wordcount.txt";
     private final JobSubmitter jobSubmitter;
     private final String fileRootPath;
 
@@ -22,7 +23,8 @@ public class TriggerWordCount {
 
     public void trigger() throws Exception {
         Map<String, String> jobArgs = new HashMap<>();
-        jobArgs.put("inputFilePath", Paths.get(fileRootPath, FILE_NAME).toString());
+        jobArgs.put("inputFilePath", Paths.get(fileRootPath, INTPUT_FILE_NAME).toString());
+        jobArgs.put("outputFilePath", Paths.get(fileRootPath, OUTPUT_FILE_NAME).toString());
         jobSubmitter.submitJob("wordCount", jobArgs);
     }
 }
