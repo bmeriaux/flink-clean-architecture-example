@@ -1,7 +1,7 @@
 
 FROM openjdk:8u171-jre-slim
 
-ARG JAR_VERSION
+ARG JAR_VERSION="1.0.0-SNAPSHOT"
 
 EXPOSE ${PORT:-8080}
 

@@ -1,16 +1,18 @@
 flink:
   defaultParallelism: 4
-  managerHost: localhost
+  managerHost: jobmanager
   managerRpcPort: 6123
-  restAddress: localhost
+  restAddress: jobmanager
   restPort: 8081
-  jobJarRootPath: "build"
+  jobJarRootPath: "job"
   jobJarName: "job.jar"
+
 server:
   port: ${PORT:8080}
 spring:
   application:
     name: flink-clean-archi
+
 jobs:
   wordCount:
-    filesRootPath: "build/test-files/"
+    filesRootPath: "/files"

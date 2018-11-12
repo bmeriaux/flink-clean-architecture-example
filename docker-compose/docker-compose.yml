@@ -1,0 +1,38 @@
+version: "3"
+services:
+  jobmanager:
+    image: ${FLINK_DOCKER_IMAGE_NAME:-flink:1.6.2-scala_2.11-alpine}
+    expose:
+    - "6123"
+    ports:
+    - "8081:8081"
+    command: jobmanager
+    environment:
+    - JOB_MANAGER_RPC_ADDRESS=jobmanager
+
+  taskmanager:
+    image: ${FLINK_DOCKER_IMAGE_NAME:-flink:1.6.2-scala_2.11-alpine}
+    expose:
+    - "6121"
+    - "6122"
+    depends_on:
+    - jobmanager
+    command: taskmanager
+    volumes:
+    - ./files:/files
+    links:
+    - "jobmanager:jobmanager"
+    environment:
+    - JOB_MANAGER_RPC_ADDRESS=jobmanager
+
+  application:
+    container_name: my_application
+    build: ../
+    image: my_application:latest
+    ports:
+    - "8080:8080"
+    volumes:
+    - ./config:/config
+    depends_on:
+    - jobmanager
+    - taskmanager

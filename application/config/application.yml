@@ -2,6 +2,8 @@ flink:
   defaultParallelism: 4
   managerHost: localhost
   managerRpcPort: 6123
+  restAddress: localhost
+  restPort: 8081
   jobJarRootPath: "build"
   jobJarName: "job.jar"
 

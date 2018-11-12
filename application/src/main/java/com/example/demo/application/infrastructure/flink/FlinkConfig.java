@@ -18,7 +18,8 @@ public class FlinkConfig {
         config.setBoolean(SecurityOptions.SSL_REST_ENABLED, false);
         config.setString(JobManagerOptions.ADDRESS, flinkProperties.getManagerHost());
         config.setInteger(JobManagerOptions.PORT, flinkProperties.getManagerRpcPort());
-        config.setString(RestOptions.ADDRESS, flinkProperties.getManagerHost());
+        config.setString(RestOptions.ADDRESS, flinkProperties.getRestAddress());
+        config.setInteger(RestOptions.PORT, flinkProperties.getRestPort());
         RestClusterClient restClusterClient = new RestClusterClient<>(config, "clean-archi-demo-rest-client");
         restClusterClient.setDetached(true);
         return restClusterClient;
