@@ -5,7 +5,7 @@ import com.example.demo.job.infrastructure.flink.Job;
 import com.example.demo.job.infrastructure.flink.source.FileSource;
 import com.example.demo.job.infrastructure.flink.task.TokenizeWordTask;
 import org.apache.flink.api.common.JobExecutionResult;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.api.java.ExecutionEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -13,31 +13,31 @@ import org.springframework.stereotype.Component;
 @Component
 public class WordCountJob implements Job {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WordCountJob.class);
     public static final String JOB_NAME = "wordCount";
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(WordCountJob.class);
     private final FileSource fileSource;
     private final TokenizeWordTask tokeniseWordTask;
-    private final StreamExecutionEnvironment streamExecutionEnvironment;
+    private final ExecutionEnvironment executionEnvironment;
     private final JobProperties jobProperties;
+    private final WordTokenReduceGroup wordTokenReduceGroup;
 
-    public WordCountJob(FileSource fileSource, TokenizeWordTask tokeniseWordTask, StreamExecutionEnvironment streamExecutionEnvironment, JobProperties jobProperties) {
+    public WordCountJob(FileSource fileSource, TokenizeWordTask tokeniseWordTask, ExecutionEnvironment executionEnvironment, JobProperties jobProperties, WordTokenReduceGroup wordTokenReduceGroup) {
         this.fileSource = fileSource;
         this.tokeniseWordTask = tokeniseWordTask;
-        this.streamExecutionEnvironment = streamExecutionEnvironment;
+        this.executionEnvironment = executionEnvironment;
         this.jobProperties = jobProperties;
+        this.wordTokenReduceGroup = wordTokenReduceGroup;
     }
 
     @Override
     public JobExecutionResult start() throws Exception {
-        fileSource.getStreamFromFile(jobProperties.getInputFilePath())
+        fileSource.getLinesFromFile(jobProperties.getInputFilePath())
             .flatMap(tokeniseWordTask)
-            .keyBy(new WordTokenKeySelector())
-            .sum("count")
-            .writeAsText(jobProperties.getOutputFilePath()).setParallelism(1); // TODO sink in jdbc
+            .groupBy("word")
+            .reduceGroup(wordTokenReduceGroup)
+            .writeAsText(jobProperties.getOutputFilePath()).setParallelism(1);// TODO sink in jdbc
 
-        LOGGER.info("job execution plan:{}", streamExecutionEnvironment.getExecutionPlan());
-        return streamExecutionEnvironment.execute(JOB_NAME);
+        return executionEnvironment.execute();
     }
 
     @Override

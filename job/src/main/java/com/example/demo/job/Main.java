@@ -3,8 +3,8 @@ package com.example.demo.job;
 
 import com.example.demo.job.infrastructure.config.AppConfig;
 import com.example.demo.job.infrastructure.flink.Job;
+import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.PropertySource;
@@ -31,8 +31,8 @@ public class Main {
 
     private static void registerArgsAsJobParameter(ApplicationContext context, String[] args) {
         ParameterTool parameters = ParameterTool.fromArgs(args);
-        final StreamExecutionEnvironment streamExecutionEnvironment = context.getBean(StreamExecutionEnvironment.class);
-        streamExecutionEnvironment.getConfig().setGlobalJobParameters(parameters);
+        final ExecutionEnvironment executionEnvironment = context.getBean(ExecutionEnvironment.class);
+        executionEnvironment.getConfig().setGlobalJobParameters(parameters);
     }
 
     private static void startJob(ApplicationContext context) throws Exception {

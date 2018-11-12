@@ -1,22 +1,21 @@
 package com.example.demo.job.infrastructure.flink.source;
 
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.api.java.DataSet;
+import org.apache.flink.api.java.ExecutionEnvironment;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.net.URI;
 
 @Component
 public class FileSource implements Serializable {
 
-    private final StreamExecutionEnvironment streamExecutionEnvironment;
+    private final ExecutionEnvironment executionEnvironment;
 
-    public FileSource(StreamExecutionEnvironment streamExecutionEnvironment) {
-        this.streamExecutionEnvironment = streamExecutionEnvironment;
+    public FileSource(ExecutionEnvironment executionEnvironment) {
+        this.executionEnvironment = executionEnvironment;
     }
 
-    public DataStream<String> getStreamFromFile(String filePath) {
-        return streamExecutionEnvironment.readTextFile(filePath);
+    public DataSet<String> getLinesFromFile(String filePath) {
+        return executionEnvironment.readTextFile(filePath);
     }
 }

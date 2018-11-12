@@ -24,10 +24,8 @@ import org.springframework.context.ConfigurableApplicationContext;
     glue = "com/example/demo/functional/steps"
 )
 public class RunFuncTest {
-    public static Integer serverPort;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(RunFuncTest.class);
-
+    public static Integer serverPort;
     private static ConfigurableApplicationContext configurableApplicationContext;
     private static WebServer webServer;
     private static MiniCluster miniCluster;

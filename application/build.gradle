@@ -89,7 +89,7 @@ task functionalTest(type: Test) {
 
 check.dependsOn functionalTest
 
-task copyJobFatJar(){
+task copyJobFatJar() {
     dependsOn(":job:shadowJar")
     doFirst {
         logger.lifecycle("searching job fat jar")

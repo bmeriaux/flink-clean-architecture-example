@@ -1,6 +1,6 @@
 package com.example.demo.job.infrastructure.config;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.api.java.ExecutionEnvironment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +15,8 @@ import java.time.Clock;
 public class AppConfig {
 
     @Bean
-    public StreamExecutionEnvironment getStreamExecutionEnvironment() {
-        return StreamExecutionEnvironment.getExecutionEnvironment();
+    public ExecutionEnvironment getStreamExecutionEnvironment() {
+        return ExecutionEnvironment.getExecutionEnvironment();
     }
 
     @Bean
