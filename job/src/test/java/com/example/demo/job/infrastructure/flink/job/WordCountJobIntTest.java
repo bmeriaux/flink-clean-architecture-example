@@ -3,15 +3,15 @@ package com.example.demo.job.infrastructure.flink.job;
 import com.example.demo.core.domain.WordToken;
 import com.example.demo.job.infrastructure.JobProperties;
 import com.example.demo.job.infrastructure.flink.SpringTestConfig;
-import com.google.common.io.Files;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,8 +36,8 @@ class WordCountJobIntTest {
         wordCountJob.start();
 
         // Then
-        File outputFile = Paths.get(jobProperties.getOutputFilePath()).toFile();
-        List<WordToken> wordTokens = Files.readLines(outputFile, Charset.defaultCharset()).stream()
+        Path outputFile = Paths.get(jobProperties.getOutputFilePath());
+        List<WordToken> wordTokens = Files.readAllLines(outputFile, Charset.defaultCharset()).stream()
             .map(line -> {
                 try {
                     return objectMapper.readValue(line, WordToken.class);
