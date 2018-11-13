@@ -6,6 +6,7 @@ import com.example.demo.job.infrastructure.flink.source.FileSource;
 import com.example.demo.job.infrastructure.flink.task.TokenizeWordTask;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.core.fs.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -20,13 +21,20 @@ public class WordCountJob implements Job {
     private final ExecutionEnvironment executionEnvironment;
     private final JobProperties jobProperties;
     private final WordTokenReduceGroup wordTokenReduceGroup;
+    private final WordTokenTextFormatter wordTokenTextFormatter;
 
-    public WordCountJob(FileSource fileSource, TokenizeWordTask tokeniseWordTask, ExecutionEnvironment executionEnvironment, JobProperties jobProperties, WordTokenReduceGroup wordTokenReduceGroup) {
+    public WordCountJob(FileSource fileSource,
+                        TokenizeWordTask tokeniseWordTask,
+                        ExecutionEnvironment executionEnvironment,
+                        JobProperties jobProperties,
+                        WordTokenReduceGroup wordTokenReduceGroup,
+                        WordTokenTextFormatter wordTokenTextFormatter) {
         this.fileSource = fileSource;
         this.tokeniseWordTask = tokeniseWordTask;
         this.executionEnvironment = executionEnvironment;
         this.jobProperties = jobProperties;
         this.wordTokenReduceGroup = wordTokenReduceGroup;
+        this.wordTokenTextFormatter = wordTokenTextFormatter;
     }
 
     @Override
@@ -35,7 +43,7 @@ public class WordCountJob implements Job {
             .flatMap(tokeniseWordTask)
             .groupBy("word")
             .reduceGroup(wordTokenReduceGroup)
-            .writeAsText(jobProperties.getOutputFilePath()).setParallelism(1);// TODO sink in jdbc
+            .writeAsFormattedText(jobProperties.getOutputFilePath(), FileSystem.WriteMode.OVERWRITE, wordTokenTextFormatter).setParallelism(1);// TODO sink in jdbc
 
         return executionEnvironment.execute();
     }
