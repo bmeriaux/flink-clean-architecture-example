@@ -33,8 +33,16 @@ chacun constitué de 3 packages: `domain`, `usecase` et `infrastructure` qui doi
 ./gradlew check
 ```
 
-## Run
+## Run with docker
 
 ```
-./gradlew bootRun
+cd docker-compose && docker-composer up
 ```
+
+- Swagger available at: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- Flink job manager available at: [http://localhost:8081](http://localhost:8081)
+
+#### Trigger the wordcount job
+
+With swagger [job-controller](http://localhost:8080/swagger-ui.html#/job-controller/wordCountUsingPOST)
+or with curl: `curl -X POST "http://localhost:8080/jobs/wordCount" -H  "accept: */*"`
